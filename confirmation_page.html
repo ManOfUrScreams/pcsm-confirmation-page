@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>PCSM Account Confirmation</title>
+  <style>
+    :root { color-scheme: dark; --amber: #e89a32; --dim: #b97827; --panel: #100c08; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
+      background: radial-gradient(ellipse at center, #24180d 0%, #090705 68%); color: var(--amber);
+      font: 16px/1.55 "Segoe UI", Arial, sans-serif; }
+    main { width: min(100%, 620px); padding: clamp(28px, 6vw, 52px); background: var(--panel);
+      border: 1px solid var(--dim); box-shadow: 0 0 0 5px #1c1209, 0 0 28px #d8792633; text-align: center; }
+    .brand { margin: 0; font-size: clamp(22px, 5vw, 32px); letter-spacing: .12em; text-transform: uppercase; }
+    .tagline { color: #c88a3c; margin: 6px 0 32px; }
+    hr { border: 0; border-top: 1px solid #6e461d; margin: 0 auto 28px; max-width: 420px; }
+    h1 { font-size: clamp(20px, 4vw, 26px); margin: 0 0 12px; }
+    p { margin: 10px 0; color: #e0c49f; }
+    #status { min-height: 1.6em; color: #f2ad55; }
+    .note { margin-top: 26px; padding-top: 18px; border-top: 1px solid #3e2c18; color: #b99b76; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="brand">The Power Company</p>
+    <p class="tagline">Building a better you</p>
+    <hr>
+    <h1 id="heading">Account confirmation</h1>
+    <p id="status" role="status" aria-live="polite">Your confirmation link has been processed.</p>
+    <p id="detail">Return to PCSM and sign in with the username and password you registered.</p>
+    <p class="note">If the link expired or you still cannot sign in, request a new confirmation email from PCSM. For password recovery, return to PCSM and use the recovery code from your email.</p>
+  </main>
+  <script>
+    (() => {
+      const params = new URLSearchParams(location.hash.slice(1));
+      const error = params.get("error_description") || params.get("error_code");
+      const type = params.get("type");
+      const hasSession = params.has("access_token") || params.has("refresh_token");
+      history.replaceState(null, "", location.pathname + location.search);
+      const heading = document.getElementById("heading");
+      const status = document.getElementById("status");
+      const detail = document.getElementById("detail");
+      if (error) {
+        heading.textContent = "Confirmation needs attention";
+        status.textContent = "The email link could not be completed.";
+        detail.textContent = "The link may have expired or already been used. Request a new email from PCSM and try again.";
+      } else if (type === "recovery") {
+        heading.textContent = "Password recovery link opened";
+        status.textContent = "Return to PCSM to finish resetting your password.";
+        detail.textContent = "If PCSM requested a recovery code, enter the code from your email there.";
+      } else if (hasSession || type === "signup" || type === "email") {
+        heading.textContent = "Email confirmed";
+        status.textContent = "Your email address has been confirmed.";
+      }
+    })();
+  </script>
+</body>
+</html>
