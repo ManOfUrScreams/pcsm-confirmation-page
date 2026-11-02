@@ -46,7 +46,7 @@
       <button id="save-password" type="submit">Save New Password</button>
       <p id="recovery-status" role="status" aria-live="polite"></p>
     </form>
-    <p class="note" id="note">If a password reset was requested, open the reset link in your email and set a new password here. No separate recovery code is needed. Check your spam folder if the email is missing.</p>
+    <p class="note" id="note">If a password reset was requested, open the reset link in your email and set a new password here. Check your spam folder if the email is missing.</p>
   </main>
   <script>
     (() => {
@@ -69,7 +69,7 @@
         heading.textContent = "Reset your password";
         if (accessToken) {
           status.textContent = "Your reset link is ready. Choose a new password below.";
-          detail.textContent = "This link verifies your request; no recovery code is needed.";
+          detail.textContent = "Use this secure link to set a new password.";
           form.hidden = false;
           note.hidden = true;
           form.addEventListener("submit", async (event) => {
@@ -106,7 +106,7 @@
         } else {
           status.textContent = "The reset link did not provide an active recovery session.";
           detail.textContent = "Request a new password reset from PCSM, then open the newest link from your email.";
-          note.textContent = "No separate code is required. Check your spam folder if the new email does not arrive.";
+          note.textContent = "Check your spam folder if the new email does not arrive.";
         }
       } else if (hasSession || type === "signup" || type === "email") {
         heading.textContent = "Email confirmed";
