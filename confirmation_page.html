@@ -52,6 +52,7 @@
     (() => {
       const params = new URLSearchParams(location.hash.slice(1));
       const error = params.get("error_description") || params.get("error_code");
+      const errorCode = params.get("error_code") || "";
       const type = params.get("type");
       const hasSession = params.has("access_token") || params.has("refresh_token");
       const accessToken = params.get("access_token") || "";
@@ -64,7 +65,13 @@
       if (error) {
         heading.textContent = "Confirmation needs attention";
         status.textContent = "The email link could not be completed.";
-        detail.textContent = "The link may have expired or already been used. Request a new email from PCSM and try again.";
+        if (errorCode === "otp_expired") {
+          detail.textContent = "Supabase rejected this one-time link as expired or already used. Request a new reset link and open the newest message.";
+        } else if (errorCode === "access_denied") {
+          detail.textContent = "Supabase could not validate this one-time link. Request a new reset link and open the newest message.";
+        } else {
+          detail.textContent = "Supabase could not validate this one-time link. Request a new reset link and open the newest message.";
+        }
       } else if (type === "recovery") {
         heading.textContent = "Reset your password";
         if (accessToken) {
@@ -92,7 +99,15 @@
                 },
                 body: JSON.stringify({ password })
               });
-              if (!response.ok) throw new Error("The reset link may have expired. Request another password reset from PCSM.");
+              if (!response.ok) {
+                if (response.status === 401) {
+                  throw new Error("Supabase rejected the recovery session (401). The link may be expired, already used, or its session was invalid.");
+                }
+                if (response.status === 400) {
+                  throw new Error("Supabase rejected the password update (400). Check the password requirements and try again.");
+                }
+                throw new Error(`Password update failed with HTTP ${response.status}. This response does not by itself mean the link expired.`);
+              }
               form.hidden = true;
               status.textContent = "Password changed successfully.";
               detail.textContent = "Return to PCSM and sign in with your new password.";
